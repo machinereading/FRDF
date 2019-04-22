@@ -1,0 +1,7 @@
+Frame,FE,MAPPING
+Being_born,Child,S
+Being_born,Time,dbo:birthDate
+Death,Protagonist,S
+Death,Time,dbo:deathDate
+Death,Manner,?
+Being_born,Place,dbo:birthPlace
