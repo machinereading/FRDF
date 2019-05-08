@@ -1,15 +1,16 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[5]:
 
 
 import os
 import sys
 sys.path.append('../')
+from FRDF import kotimex 
 
 
-# In[4]:
+# In[2]:
 
 
 def gen_mapping(mapping_file):
@@ -36,7 +37,7 @@ def get_frame(frames):
     return frame
 
 
-# In[9]:
+# In[3]:
 
 
 class frame2RDF():
@@ -61,13 +62,13 @@ class frame2RDF():
             rel = 'frdf:'+frame+'-'+fe
         return rel
         
-    def frame2dbo(self, frame_conll):
+    def frame2dbo(self, frame_conll, sentence_id='sent_1'):
         triples = []
         for anno in frame_conll:
             tokens, lus, frames, args = anno[0],anno[1],anno[2],anno[3]
             frame = get_frame(frames)
             if frame:
-                s = False
+                sbj = False
                 pred_obj_tuples = []
                 for idx in range(len(args)):
                     arg_tag = args[idx]
@@ -80,18 +81,29 @@ class frame2RDF():
                             arg_tokens.append(tokens[next_idx])
                             next_idx +=1
                         arg_text = ' '.join(arg_tokens)
-                        fe = fe_tag                        
+                        fe = fe_tag
+                        
+                        # string to xsd
+                        if fe == 'Time':
+                            arg_text = kotimex.time2xsd(arg_text)
+                        else:
+                            arg_text = '\"'+arg_text+'\"'+'^^xsd:string'
+                        
                         rel = frame2RDF.fe2dbo(self, frame, fe)
                         
                         if rel == 'S':
-                            s = arg_text
+                            sbj = arg_text
                         else:
                             p = rel
                             o = arg_text
                             pred_obj_tuples.append( (p,o) )
-                if s:
-                    for p, o in pred_obj_tuples:
-                        triple = (s, p, o)
-                        triples.append(triple)
+                
+                for p, o in pred_obj_tuples:
+                    if sbj:
+                        s = sbj
+                    else:
+                        s = 'frame:'+frame+'-'+sentence_id
+                    triple = (s, p, o)
+                    triples.append(triple)
         return triples
 

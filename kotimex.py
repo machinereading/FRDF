@@ -11,48 +11,63 @@ sys.path.append('../')
 import re
 
 
-# In[19]:
-
-
-text = '2019년 4월 24일에'
-
-
-# In[33]:
+# In[58]:
 
 
 def basic_time_normalizer(text):
+    check_year, check_month, check_day = False, False, False
     # find year
     regex = re.compile("(?P<YEAR>\d+)년")
-    year = regex.search(text).group('YEAR')
-    if not year:
+    y_search = regex.search(text)
+    if y_search:
+        year = y_search.group('YEAR')
+        check_year = True
+    else:
         year = '0000'
     
     # find month
     regex = re.compile("(?P<MONTH>\d+)월")
-    month = regex.search(text).group('MONTH')
-    if not month:
+    m_search = regex.search(text)
+    if m_search:
+        month = m_search.group('MONTH')
+        check_month = True
+    else:
         month = '0'
     
     # find day
     regex = re.compile("(?P<DAY>\d+)일")
-    day = regex.search(text).group('DAY')
-    if not day:
+    d_search = regex.search(text)
+    if d_search:
+        day = d_search.group('DAY')
+        check_day = True
+    else:
         day = '0'
     
-    ymd = year+month+day
-    
-    if ymd.isdigit():
-        time_rep = year+'-'+month+'-'+day
+    if check_year or check_month or check_day:
+        if len(year) == 4 and len(month) <= 2 and len(day) <=2:
+            time_rep = year+'-'+month+'-'+day
     else:
         time_rep = text    
     return time_rep    
 
 
-# In[35]:
+# In[59]:
 
 
 def time2xsd(text):
     time_rep = basic_time_normalizer(text)
-    xsd = '\"'+time_rep+'\"'+'^^<http://www.w3.org/2001/XMLSchema#date>'
+    regex = re.compile(r'\d+-\d+-\d+')
+    
+    if regex.search(time_rep):
+        xsd = '\"'+time_rep+'\"'+'^^xsd:date'
+    else:
+        xsd = '\"'+time_rep+'\"'+'^^xsd:string'
     return xsd
+
+
+# In[62]:
+
+
+# xsd = time2xsd(text)
+# print(xsd)
 
