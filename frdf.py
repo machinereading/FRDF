@@ -92,7 +92,8 @@ class frame2RDF():
                         rel = frame2RDF.fe2dbo(self, frame, fe)
                         
                         if rel == 'S':
-                            sbj = arg_text
+                            pass
+#                             sbj = arg_text
                         else:
                             p = rel
                             o = arg_text
